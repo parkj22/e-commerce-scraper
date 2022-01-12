@@ -1,8 +1,10 @@
 
-# main.py
+"""
+main.py
 
-# Author: Jinyoung Park
-# Version: 1.0
+# Author: Jinyoung Park (parkj22)
+# Version: January 13, 2022
+"""
 
 import data_scraper
 

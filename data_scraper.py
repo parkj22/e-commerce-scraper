@@ -1,22 +1,29 @@
-# data_scraper.py
-# This file gathers world news from r/worldnews by using python requests library
+"""
+data_scraper.py
 
-# Author: Jinyoung Park
-# Version: 1.0
+# Author: Jinyoung Park (parkj22)
+# Version: January 13, 2022
+"""
 
 import requests
 from bs4 import BeautifulSoup
+import chrome_user_agent
 
 
-# scrapes data from web
 def run():
-    url = "https://www.reddit.com/r/worldnews/"
-    res = requests.get(url)
+    """
+    run()
+    """
+    url = "https://www.amazon.com/s?k=latops"
+    headers = {
+        "User-Agent": chrome_user_agent.get_user_agent()
+    }
+
+    res = requests.get(url, headers=headers)
 
     # Check for valid connection
     res.raise_for_status()
 
-    soup = BeautifulSoup(res.text, "html.parser")
-    headers = soup.find("h3", attrs={"class": ""})
-
-    print(headers)
+    soup = BeautifulSoup(res.text, "lxml")
+    items = soup.find_all("span", attrs={"class": "a-size-medium a-color-base a-text-normal"})
+    print(items)
