@@ -17,7 +17,7 @@ class ChromeDriver:
 
             # Configure chrome options here
             chrome_options = webdriver.ChromeOptions()
-            chrome_options.headless = True
+            # chrome_options.headless = True
 
             ChromeDriver.__instance = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
