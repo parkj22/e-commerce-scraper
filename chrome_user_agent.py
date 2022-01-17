@@ -3,10 +3,10 @@
 chrome_user_agent.py
 
 # Author: Jinyoung Park (parkj22)
-# Version: January 13, 2022
+# Version: January 17, 2022
 """
 
-import chrome_driver
+from chrome_driver import ChromeDriver
 
 
 def get_user_agent():
@@ -17,7 +17,7 @@ def get_user_agent():
     User-Agent is set from "HeadlessChrome" to "Chrome"
     """
 
-    browser = chrome_driver.ChromeDriver.get_instance()
+    browser = ChromeDriver.get_instance()
     url = "https://www.whatsmyua.info"
 
     # Access the url and find the value

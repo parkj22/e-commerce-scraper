@@ -1,3 +1,11 @@
+
+"""
+chrome_driver.py
+
+# Author: Jinyoung Park (parkj22)
+# Version: January 17, 2022
+"""
+
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
