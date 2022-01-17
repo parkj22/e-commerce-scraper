@@ -11,18 +11,18 @@ import chrome_driver
 
 def get_user_agent():
     """
-    Returns: Detected User-Agent value from www.whatismybrowser.com
+    Returns: Detected User-Agent value from www.whatsmyua.info
 
     get_user_agent() looks into a website that provides User-Agent and extracts it from the element
     User-Agent is set from "HeadlessChrome" to "Chrome"
     """
 
     browser = chrome_driver.ChromeDriver.get_instance()
-    url = "https://www.whatismybrowser.com/detect/what-is-my-user-agent"
+    url = "https://www.whatsmyua.info"
 
     # Access the url and find the value
     browser.get(url)
-    user_agent = browser.find_element("id", "detected_value").text
+    user_agent = browser.find_element("id", "custom-ua-string").text
     browser.quit()
 
     # "HeadlessChrome" is often blocked for unwanted traffic, so

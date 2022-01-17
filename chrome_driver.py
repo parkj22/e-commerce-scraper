@@ -12,14 +12,14 @@ class ChromeDriver:
             ChromeDriver()
         return ChromeDriver.__instance
 
-    def __init__(self):
+    def __new__(cls):
         if ChromeDriver.__instance is None:
-
             # Configure chrome options here
             chrome_options = webdriver.ChromeOptions()
             # chrome_options.headless = True
 
-            ChromeDriver.__instance = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+            ChromeDriver.__instance = webdriver.Chrome(service=Service(ChromeDriverManager().install()),
+                                                       options=chrome_options)
 
 
 def get_chrome_driver():
