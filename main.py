@@ -3,9 +3,9 @@
 main.py
 
 # Author: Jinyoung Park (parkj22)
-# Version: January 13, 2022
+# Version: January 19, 2022
 """
 
-import data_scraper
+import data_organizer
 
-data_scraper.run()
+data_organizer.organize()  # Organizes data in a csv file

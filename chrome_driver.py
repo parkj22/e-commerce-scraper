@@ -1,9 +1,11 @@
-
 """
 chrome_driver.py
 
+Provides ChromeDriver for other modules to have access Selenium
+WebDriver (Chrome) and browse the web
+
 # Author: Jinyoung Park (parkj22)
-# Version: January 17, 2022
+# Version: January 19, 2022
 """
 
 from selenium import webdriver
@@ -12,34 +14,35 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 
 class ChromeDriver:
+    """
+    ChromeDriver holds an instance of Selenium WebDriver (Chrome)
+    to be used in other modules, while restricting the instantiation
+    of WebDrivers to one object at a time
+    """
+
     __instance = None
 
     @staticmethod
     def get_instance():
+        """
+        Returns: the WebDriver instance
+
+        get_instance() calls the constructor if the instance has not
+        been initialized yet
+        """
         if ChromeDriver.__instance is None:
             ChromeDriver()
         return ChromeDriver.__instance
 
     def __new__(cls):
-        if ChromeDriver.__instance is None:
-            # Configure chrome options here
-            chrome_options = webdriver.ChromeOptions()
-            # chrome_options.headless = True
+        """
+        __new__() initializes the instance with chrome_options, which
+        is configured beforehand
+        """
 
-            ChromeDriver.__instance = webdriver.Chrome(service=Service(ChromeDriverManager().install()),
-                                                       options=chrome_options)
+        # Configure chrome options here
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.headless = True  # Setting headless true allows Chrome to run in background
 
-
-def get_chrome_driver():
-    """
-    Returns: Configured web driver
-
-    set_chrome_driver() uses ChromeDriverManager to install and create a chrome driver
-    options.headless flag is set to true to run things in background
-    """
-
-    # Configure chrome options here
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.headless = True
-
-    return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+        ChromeDriver.__instance = webdriver.Chrome(service=Service(ChromeDriverManager().install()),
+                                                   options=chrome_options)
