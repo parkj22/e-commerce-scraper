@@ -1,4 +1,4 @@
-#E-commerce Scraper
+# E-commerce Scraper
 A web scraping program that collects information from three e-commerce websites - Amazon, eBay, and Etsy
 
 This program utilizes Tkinter and Selenium Webdriver to automatically browse/collect valuable information about products
