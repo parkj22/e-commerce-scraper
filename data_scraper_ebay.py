@@ -1,11 +1,13 @@
+
 """
 data_scraper_ebay.py
 
 Scrapes information about products on Ebay.com
 
 # Author: Jinyoung Park (parkj22)
-# Version: January 21, 2022
+# Version: January 22, 2022
 """
+
 import search_window
 from chrome_driver import ChromeDriver
 from selenium.webdriver.common.by import By

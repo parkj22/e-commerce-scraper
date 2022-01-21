@@ -1,13 +1,14 @@
+
 """
 data_scraper_etsy.py
 
 Scrapes information about products on Etsy.com
 
 # Author: Jinyoung Park (parkj22)
-# Version: January 21, 2022
+# Version: January 22, 2022
 """
-import re
 
+import re
 import search_window
 from chrome_driver import ChromeDriver
 from selenium.webdriver.common.by import By

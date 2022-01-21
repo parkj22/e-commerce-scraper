@@ -3,9 +3,9 @@
 main.py
 
 # Author: Jinyoung Park (parkj22)
-# Version: January 19, 2022
+# Version: January 22, 2022
 """
 
-import data_organizer
+import search_window
 
-data_organizer.organize()  # Organizes data in a csv file
+search_window.open_window()

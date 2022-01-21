@@ -1,3 +1,4 @@
+
 """
 chrome_driver.py
 
@@ -5,7 +6,7 @@ Provides ChromeDriver for other modules to have access Selenium
 WebDriver (Chrome) and browse the web
 
 # Author: Jinyoung Park (parkj22)
-# Version: January 19, 2022
+# Version: January 22, 2022
 """
 
 from selenium import webdriver
