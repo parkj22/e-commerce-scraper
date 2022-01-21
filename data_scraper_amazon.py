@@ -23,6 +23,8 @@ def extract(search, num_page):
     various types of data to create a collection of products
     search: URL query parameter
     num_page: total number of pages to be scraped
+
+    TODO: Scrape does not work for some search queries
     """
 
     browser = ChromeDriver.get_instance()
