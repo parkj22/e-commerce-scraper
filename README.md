@@ -7,4 +7,4 @@ visualization.
 ![e-commerce-scraper](https://user-images.githubusercontent.com/59897342/150569093-c694a95a-126f-4fba-b66c-23e12a62f07f.gif)
 
 
-<img width="480" alt="Screen Shot 2022-01-22 at 1 42 44 AM" src="https://user-images.githubusercontent.com/59897342/150567699-469bc5be-afd2-4c8d-aaee-dbd33ee72bea.png">
+<img width="720" alt="Screen Shot 2022-01-22 at 1 42 44 AM" src="https://user-images.githubusercontent.com/59897342/150567699-469bc5be-afd2-4c8d-aaee-dbd33ee72bea.png">
