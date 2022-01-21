@@ -1,38 +1,47 @@
 """
 data_scraper_amazon.py
 
-Scrapes data on Amazon.com for products
+Scrapes information about products on Amazon.com
 
 # Author: Jinyoung Park (parkj22)
-# Version: January 19, 2022
+# Version: January 21, 2022
 """
-
+import search_window
 from chrome_driver import ChromeDriver
 from selenium.webdriver.common.by import By
 from product_info import Product
 
 
-def extract():
+def extract(search, num_page):
     """
-    Returns: a list of Products that has been found
+    Returns: a list of products and their information found
     on Amazon.com
 
-    extract() browses through webpages and scrapes
+    extract(): browses through webpages and scrapes
     various types of data to create a collection of products
+    search: URL query parameter
+    num_page: total number of pages to be scraped
     """
 
     browser = ChromeDriver.get_instance()
     amazon_products = []  # Will be collecting all products here
 
     # Iterate as many pages as required
-    for i in range(1):
+    for i in range(1, num_page + 1):
         # Set url to each page and browse
-        url = "https://www.amazon.com/s?k=laptop&page={}".format(i)
+        url = "https://www.amazon.com/s?k={}&page={}".format(search, i)
         browser.get(url)
 
-        # Locate all sections for each product
+        # Update progress frame to hint what webpage is being scraped
+        search_window.progress_frame.configure(text="Amazon (Page {}/{})".format(i, num_page))
+        search_window.progress_frame.update()
+
+        # Locate all sections for each product and configure progress bar accordingly
         amazon_sections = browser.find_elements(By.CLASS_NAME, "s-result-item.s-asin.sg-col-0-of-12.sg-col-16-of-20.sg"
                                                                "-col.s-widget-spacing-small.sg-col-12-of-16")
+        search_window.progress.configure(maximum=len(amazon_sections))
+        index = 1
+
         # Iterate through all sections to extract needed values
         for section in amazon_sections:
             # Initialize an empty Product
@@ -48,6 +57,12 @@ def extract():
             # Add to the final collection
             amazon_products.append(current_product)
 
+            # Update progress bar
+            search_window.progress_var.set(index)
+            search_window.progress.update()
+            index += 1
+
+    search_window.progress.stop()
     return amazon_products
 
 

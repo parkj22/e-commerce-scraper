@@ -1,37 +1,45 @@
 """
 data_scraper_ebay.py
 
-Scrapes data on Ebay.com for products
+Scrapes information about products on Ebay.com
 
 # Author: Jinyoung Park (parkj22)
-# Version: January 19, 2022
+# Version: January 21, 2022
 """
-
+import search_window
 from chrome_driver import ChromeDriver
 from selenium.webdriver.common.by import By
 from product_info import Product
 
 
-def extract():
+def extract(search, num_page):
     """
-    Returns: a list of Products that has been found
+    Returns: a list of products and their information found
     on Ebay.com
 
     extract() browses through webpages and scrapes
     various types of data to create a collection of products
+    search: URL query parameter
+    num_page: total number of pages to be scraped
     """
 
     browser = ChromeDriver.get_instance()
     ebay_products = []  # Will be collecting all products here
 
     # Iterate as many pages as required
-    for i in range(1):
+    for i in range(1, num_page + 1):
         # Set url to each page and browse
-        url = "https://www.ebay.com/sch/i.html?_from=R40&_nkw=laptop&_sacat=0&_pgn={}".format(i)
+        url = "https://www.ebay.com/sch/i.html?_from=R40&_nkw={}&_sacat=0&_pgn={}".format(search, i)
         browser.get(url)
 
-        # Locate all sections for each product
+        # Update progress frame to hint what webpage is being scraped
+        search_window.progress_frame.configure(text="Ebay (Page {}/{})".format(i, num_page))
+        search_window.progress_frame.update()
+
+        # Locate all sections for each product and configure progress bar accordingly
         ebay_sections = browser.find_elements(By.CLASS_NAME, "s-item__info.clearfix")
+        search_window.progress.configure(maximum=len(ebay_sections))
+        index = 1
 
         # Iterate through all sections to extract needed values
         for section in ebay_sections:
@@ -49,6 +57,12 @@ def extract():
             if current_product.name != "":
                 ebay_products.append(current_product)
 
+            # Update progress bar
+            search_window.progress_var.set(index)
+            search_window.progress.update()
+            index += 1
+
+    search_window.progress.stop()
     return ebay_products
 
 

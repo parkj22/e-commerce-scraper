@@ -1,41 +1,51 @@
 """
-data_scraper_target.py
+data_scraper_etsy.py
 
-Scrapes data on Target.com for products
+Scrapes information about products on Etsy.com
 
 # Author: Jinyoung Park (parkj22)
-# Version: January 19, 2022
+# Version: January 21, 2022
 """
+import re
 
+import search_window
 from chrome_driver import ChromeDriver
 from selenium.webdriver.common.by import By
 from product_info import Product
 
 
-def extract():
+def extract(search, num_page):
     """
-    Returns: a list of Products that has been found
-    on Target.com
+    Returns: a list of products and their information found
+    on Etsy.com
 
     extract() browses through webpages and scrapes
     various types of data to create a collection of products
+    search: URL query parameter
+    num_page: total number of pages to be scraped
     """
 
     browser = ChromeDriver.get_instance()
-    target_products = []  # Will be collecting all products here
+    etsy_products = []  # Will be collecting all products here
 
     # Iterate as many pages as required
-    for i in range(1):
+    for i in range(1, num_page + 1):
         # Set url to each page and browse
-        url = "https://www.target.com/s?searchTerm=laptop&Nao=0".format((i-1) * 24)
+        url = "https://www.etsy.com/search?q={}&page={}&ref=pagination".format(search, i)
         browser.get(url)
 
-        # Locate all sections for each product
-        target_sections = browser.find_elements(By.XPATH, '//*[@id="mainContainer"]/div[4]/div[2]/div/div[2]/div[3]')
-        print(len(target_sections))
+        # Update progress frame to hint what webpage is being scraped
+        search_window.progress_frame.configure(text="Etsy (Page {}/{})".format(i, num_page))
+        search_window.progress_frame.update()
+
+        # Locate all sections for each product and configure progress bar accordingly
+        etsy_sections = browser.find_elements(By.CLASS_NAME, "v2-listing-card__info ")
+
+        search_window.progress.configure(maximum=len(etsy_sections))
+        index = 1
 
         # Iterate through all sections to extract needed values
-        for section in target_sections:
+        for section in etsy_sections:
             # Initialize an empty Product
             current_product = Product()
 
@@ -44,12 +54,19 @@ def extract():
             extract_price(section, current_product)
             extract_rating(section, current_product)
             extract_num_review(section, current_product)
-            extract_link(section, current_product)
+            extract_link(browser, current_product)
 
             # Add to the final collection
-            target_products.append(current_product)
+            if current_product.name != "":
+                etsy_products.append(current_product)
 
-    return target_products
+            # Update progress bar
+            search_window.progress_var.set(index)
+            search_window.progress.update()
+            index += 1
+
+    search_window.progress.stop()
+    return etsy_products
 
 
 def extract_name(section, product):
@@ -62,7 +79,8 @@ def extract_name(section, product):
     occurs in other extract functions for the same purpose
     """
     # Locate the element that contains the name
-    elements = section.find_elements(By.CLASS_NAME, "f6.f5-l.normal.dark-gray.mb0.mt1.lh-title")
+    elements = section.find_elements(By.CLASS_NAME, "wt-text-caption.v2-listing-card__title"
+                                                    ".wt-text-truncate.wt-mb-xs-0")
 
     # Equivalent to 'if the element exist'
     if len(elements) > 0:
@@ -75,11 +93,11 @@ def extract_price(section, product):
     and modifies the price in 'product'
     """
     # Locate the element that contains the price
-    elements = section.find_elements(By.CLASS_NAME, "b.black.f5.mr1.mr2-xl.lh-copy.f4-l")
+    elements = section.find_elements(By.CLASS_NAME, "currency-value")
 
     # Equivalent to 'if the element exist'
     if len(elements) > 0:
-        product.price = elements[0].text.replace("$", "")
+        product.price = elements[0].text
 
 
 def extract_rating(section, product):
@@ -88,12 +106,11 @@ def extract_rating(section, product):
     and modifies the rating in 'product'
     """
     # Locate element for rating
-    elements = section.find_elements(By.CLASS_NAME, "x-star-rating")
+    elements = section.find_elements(By.NAME, "rating")
     if len(elements) > 0:
-        elements = elements[0].find_elements(By.CLASS_NAME, "clipped")
-    if len(elements) > 0:
-        # Rating is stored in an attribute called aria-label
-        product.rating = elements[0].text.replace(" out of 5 stars.", "")
+        rating_str = elements[0].get_attribute("value")
+        if rating_str is not None:
+            product.rating = rating_str
 
 
 def extract_num_review(section, product):
@@ -102,20 +119,18 @@ def extract_num_review(section, product):
     in the section and modifies the num_review in 'product'
     """
     # Locate element for number of reviews
-    elements = section.find_elements(By.CLASS_NAME, "s-item__reviews-count")
+    elements = section.find_elements(By.CLASS_NAME, "wt-text-body-01")
     if len(elements) > 0:
-        elements = elements[0].find_elements(By.TAG_NAME, "span")
-    if len(elements) > 0:
-        product.num_review = elements[0].text.replace(" product ratings", "").replace(" product rating", "")
+        product.num_review = re.sub("[^0-9]", "", elements[0].text)
 
 
-def extract_link(section, product):
+def extract_link(browser, product):
     """
     extract_link() finds the link to the page in the section
     and modifies the link in 'product'
     """
     # Locate element for link
-    elements = section.find_elements(By.CLASS_NAME, "s-item__link")
+    elements = browser.find_elements(By.CLASS_NAME, "listing-link")
     if len(elements) > 0:
         link_str = elements[0].get_attribute("href")
         if link_str is not None:
