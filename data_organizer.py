@@ -6,14 +6,15 @@ This module passes on given inputs to modules that scrapes websites
 specified by the user and collects all returned information on 'scraped-products.csv'
 
 # Author: Jinyoung Park (parkj22)
-# Version: January 21, 2022
+# Version: January 22, 2022
 """
+
 import data_scraper_etsy
 import search_window
-from chrome_driver import ChromeDriver
 import data_scraper_amazon
 import data_scraper_ebay
 import csv
+from chrome_driver import ChromeDriver
 from product_info import Product
 
 
@@ -44,9 +45,6 @@ def organize(search, path, amazon, ebay, etsy, num_page):
         extract_to_csv(writer, "Ebay", data_scraper_ebay.extract, search, num_page)
     if etsy:
         extract_to_csv(writer, "Etsy", data_scraper_etsy.extract, search, num_page)
-
-    # Quit browser after collecting all data
-    ChromeDriver.get_instance().quit()
 
     # Info message is popped up when collecting / writing data is complete
     search_window.notify_complete()
