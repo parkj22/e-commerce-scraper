@@ -1,95 +1,137 @@
+
+"""
+search_window.py
+
+Utilizes Tk interface to receive inputs in a more
+user-friendly way
+
+# Author: Jinyoung Park (parkj22)
+# Version: January 22, 2022
+"""
+
 import tkinter.messagebox
-from tkinter import *
 import tkinter.ttk
+import data_organizer
+from tkinter import *
 from tkinter import filedialog
 
-import data_organizer
-from chrome_driver import ChromeDriver
+
+def btn_scrape_pressed():
+    """
+    btn_scrape_pressed(): triggered when 'Scrape' button is pressed
+        once all fields are correctly entered in, user's inputs
+        are passed onto data_organizer module
+    """
+    if search.get().strip() == "":
+        tkinter.messagebox.showwarning("Warning", "No search query has been entered!")
+        return
+    if path.get().strip() == "":
+        tkinter.messagebox.showwarning("Warning", "No file path has been entered!")
+        return
+    if not (use_amazon.get() or use_ebay.get() or use_etsy.get()):
+        tkinter.messagebox.showwarning("Warning", "No website has been selected!")
+        return
+    if num_page.get() is None:
+        tkinter.messagebox.showwarning("Warning", "Number of pages has not been selected!")
+        return
+
+    progress_frame.configure(text="Initializing...")
+    progress_frame.update()
+
+    data_organizer.organize(search.get().replace(" ", "+"), path.get(), use_amazon.get(),
+                            use_ebay.get(), use_etsy.get(), int(num_page.get()))
 
 
-class SearchWindow:
-    def __init__(self):
-        root = Tk()
-        root.title("E-commerce Scraper")
+def btn_browse_pressed():
+    """
+    btn_browse_pressed(): triggered when 'Browse' button is pressed
+        opens up filedialog to allow user to choose a location
+        for the csv file
+    """
+    folder_path = filedialog.askdirectory()
 
-        search_frame = LabelFrame(root, text="Search...", padx=5, pady=5)
-        search_frame.pack(fill="x", padx=5, pady=5)
+    # Do nothing if user hits cancel
+    if folder_path == "":
+        return
 
-        self.__search_entry = Entry(search_frame)
-        self.__search_entry.pack(side="left", fill="x", expand=True, ipady=4)
+    # Path entry is kept at "readonly" to limit editing file path by hand
+    path.configure(state="normal")
+    path.delete(0, END)
+    path.insert(0, folder_path)
+    path.configure(state="readonly")
 
-        folder_path_frame = LabelFrame(root, text="Save as...", padx=5, pady=5)
-        folder_path_frame.pack(fill="x", padx=5, pady=5)
 
-        btn_browse = Button(folder_path_frame, padx=5, pady=5, text="Browse...", command=self.btn_browse_pressed)
-        btn_browse.pack(side="right")
+def open_window():
+    """
+    open_window(): begins Tk mainloop
+    """
+    root.mainloop()
 
-        self.__folder_path_entry = Entry(folder_path_frame, state="readonly")
-        self.__folder_path_entry.pack(side="left", fill="x", expand=True, ipady=4)
 
-        option_frame = LabelFrame(root, text="Options")
-        option_frame.pack(fill="x", padx=5, pady=5)
+def notify_complete():
+    """
+    notify_complete(): throws an info message written below
+    """
+    tkinter.messagebox.showinfo("Info", "Your products are ready to be viewed!")
 
-        self.__check_var_amazon, self.__check_var_ebay, self.__check_var_etsy = BooleanVar(), BooleanVar(), BooleanVar()
-        check_amazon = Checkbutton(option_frame, text="Amazon", variable=self.__check_var_amazon)
-        check_ebay = Checkbutton(option_frame, text="Ebay", variable=self.__check_var_ebay)
-        check_etsy = Checkbutton(option_frame, text="Etsy", variable=self.__check_var_etsy)
-        check_amazon.select()
-        check_ebay.select()
-        check_etsy.select()
 
-        self.__combo_num_page = tkinter.ttk.Combobox(option_frame, values=[str(i) for i in range(1, 6)])
-        self.__combo_num_page.set("Number of pages")
+# Tk window configuration starts here
+root = Tk()
+root.title("E-commerce Scraper")
 
-        check_amazon.grid(column=0, row=0)
-        check_ebay.grid(column=1, row=0)
-        check_etsy.grid(column=2, row=0)
-        self.__combo_num_page.grid(column=3, row=0)
+# Search frame & entry
+search_frame = LabelFrame(root, text="Search...", padx=5, pady=5)
+search_frame.pack(fill="x", padx=5, pady=5)
 
-        progress_frame = LabelFrame(root, text="Progress bar")
-        progress_frame.pack(fill="x", padx=5, pady=5)
+search = Entry(search_frame)
+search.pack(side="left", fill="x", expand=True, ipady=4)
 
-        progress_var = DoubleVar()
-        progress_bar = tkinter.ttk.Progressbar(progress_frame, maximum=100, variable=progress_var)
-        progress_bar.pack(fill="x", padx=5, pady=5)
+# Folder path frame & browse button & path entry
+folder_path_frame = LabelFrame(root, text="Save as...", padx=5, pady=5)
+folder_path_frame.pack(fill="x", padx=5, pady=5)
 
-        btn_frame = Frame(root)
-        btn_frame.pack(fill="x", padx=5, pady=5)
+btn_browse = Button(folder_path_frame, padx=5, pady=5, text="Browse...", command=btn_browse_pressed)
+btn_browse.pack(side="right")
 
-        btn_close = Button(btn_frame, padx=5, pady=5, text="Close", width=6, command=root.quit)
-        btn_close.pack(side="right")
+path = Entry(folder_path_frame, state="readonly")
+path.pack(side="left", fill="x", expand=True, ipady=4)
 
-        btn_scrape = Button(btn_frame, padx=5, pady=5, text="Scrape", width=6, command=self.btn_scrape_pressed)
-        btn_scrape.pack(side="right")
+# Option frame with checkboxes and a combobox
+option_frame = LabelFrame(root, text="Options")
+option_frame.pack(fill="x", padx=5, pady=5)
 
-        root.resizable(False, False)
+use_amazon, use_ebay, use_etsy = BooleanVar(), BooleanVar(), BooleanVar()
+check_amazon = Checkbutton(option_frame, text="Amazon", variable=use_amazon)
+check_ebay = Checkbutton(option_frame, text="Ebay", variable=use_ebay)
+check_etsy = Checkbutton(option_frame, text="Etsy", variable=use_etsy)
+check_amazon.select()
+check_ebay.select()
+check_etsy.select()
 
-        root.mainloop()
+num_page = tkinter.ttk.Combobox(option_frame, values=[str(i) for i in range(1, 6)])
+num_page.set("Number of pages")
 
-    def btn_scrape_pressed(self):
-        if self.__search_entry.get().strip() == "":
-            tkinter.messagebox.showwarning("Warning", "No search query has been entered!")
-            return
+check_amazon.grid(column=0, row=0)
+check_ebay.grid(column=1, row=0)
+check_etsy.grid(column=2, row=0)
+num_page.grid(column=3, row=0)
 
-        if self.__folder_path_entry.get().strip() == "":
-            tkinter.messagebox.showwarning("Warning", "No file path has been entered!")
-            return
+# Progress frame & bar
+progress_frame = LabelFrame(root, text="Progress bar")
+progress_frame.pack(fill="x", padx=5, pady=5)
 
-        if not (self.__check_var_amazon.get() or self.__check_var_ebay.get() or self.__check_var_etsy.get()):
-            tkinter.messagebox.showwarning("Warning", "No website has been selected!")
-            return
+progress_var = IntVar()  # progress variable
+progress = tkinter.ttk.Progressbar(progress_frame, mode="determinate", variable=progress_var)
+progress.pack(fill="x", padx=5, pady=5)
 
-        if self.__combo_num_page.get() is None:
-            tkinter.messagebox.showwarning("Warning", "Number of pages has not been selected!")
-            return
+# Button frame & scrape button & close button
+btn_frame = Frame(root)
+btn_frame.pack(fill="x", padx=5, pady=5)
 
-        data_organizer.organize(self.__search_entry.get(), self.__folder_path_entry.get(), self.__check_var_amazon.get(), self.__check_var_ebay.get(), self.__check_var_etsy.get(), int(self.__combo_num_page.get()))
+btn_close = Button(btn_frame, padx=5, pady=5, text="Close", width=6, command=root.quit)
+btn_close.pack(side="right")
 
-    def btn_browse_pressed(self):
-        folder_path = filedialog.askdirectory()
-        if folder_path == "":
-            return
-        self.__folder_path_entry.configure(state="normal")
-        self.__folder_path_entry.delete(0, END)
-        self.__folder_path_entry.insert(0, folder_path)
-        self.__folder_path_entry.configure(state="readonly")
+btn_scrape = Button(btn_frame, padx=5, pady=5, text="Scrape", width=6, command=btn_scrape_pressed)
+btn_scrape.pack(side="right")
+
+root.resizable(False, False)
